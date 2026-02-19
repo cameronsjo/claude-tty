@@ -15,17 +15,21 @@ You're running on a phone terminal. Keep responses short and phone-friendly.
 
 ## Available Commands
 
-### Docker (read-only via socket proxy)
+### Docker (read-only via sanitizing proxy)
 
 ```bash
 docker ps                          # Running containers
 docker ps -a                       # All containers (including stopped)
 docker logs <container> --tail 50  # Recent logs
-docker inspect <container>         # Container config
+docker inspect <container>         # Container config (env vars redacted)
 docker stats --no-stream           # Resource usage snapshot
 docker network ls                  # Networks
 docker volume ls                   # Volumes
 ```
+
+**Note:** Environment variables in `docker inspect` output are redacted by the
+sanitizing proxy. This is intentional — secrets live in env vars and this
+terminal is not the place to view them.
 
 ### Host Metrics (read-only mounts)
 
@@ -38,27 +42,31 @@ ls /host/sys/class/net/            # Network interfaces
 cat /host/proc/net/dev             # Network traffic
 ```
 
-### Compose Files (read-only)
-
-```bash
-ls /host/compose/                  # List compose stacks
-cat /host/compose/<stack>.yml      # Read compose file
-```
-
 ### General Diagnostics
 
 ```bash
-curl -s http://dockersocket:2375/info | jq .  # Docker daemon info
-htop                                           # Interactive process viewer
+htop                               # Interactive process viewer
 ```
 
 ## What's Blocked (and Why)
 
-- `docker exec` — No shell access into containers (socket proxy POST=0)
-- `docker restart/stop/rm` — No container mutation
-- `docker pull/create` — No image or container creation
+- `docker exec` — No shell access into containers (blocked by proxy)
+- `docker restart/stop/rm` — No container mutation (blocked by proxy)
+- `docker pull/create` — No image or container creation (blocked by proxy)
 - Host filesystem writes — All mounts are read-only
 - `sudo` — Non-root user, no capabilities
+- Outbound internet — DNS resolution for external domains is disabled
+- Direct Docker socket access — Network-isolated from socket proxy
+
+## Security Model
+
+This container runs in a network-isolated sandbox:
+
+1. Docker API access goes through a sanitizing proxy that strips secrets
+2. Only on a dedicated network — cannot reach the Docker socket directly
+3. External DNS is disabled — cannot resolve or reach internet hosts
+4. All host mounts are read-only
+5. No capabilities, no privilege escalation
 
 ## Key Services
 

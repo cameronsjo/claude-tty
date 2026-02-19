@@ -47,10 +47,14 @@ COPY --chown=claude:claude tmux.conf /home/claude/.tmux.conf
 COPY --chown=claude:claude entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
+# Docker API sanitizing proxy (used by sidecar container)
+RUN mkdir -p /app
+COPY --chown=claude:claude docker-proxy.mjs /app/docker-proxy.mjs
+
 USER claude
 WORKDIR /diagnostics
 
-ENV DOCKER_HOST=tcp://dockersocket:2375
+ENV DOCKER_HOST=tcp://docker-sanitizer:2375
 ENV TERM=xterm-256color
 
 EXPOSE 7681
