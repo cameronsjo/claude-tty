@@ -35,8 +35,9 @@ RUN install -m 0755 -d /etc/apt/keyrings \
 # Install Claude Code CLI
 RUN npm install -g @anthropic-ai/claude-code
 
-# Create non-root user
-RUN groupadd -g 1000 claude \
+# Create non-root user (replace node:1000 from base image)
+RUN userdel -r node \
+    && groupadd -g 1000 claude \
     && useradd -u 1000 -g claude -m -s /bin/bash claude
 
 # Working directory with diagnostics context
