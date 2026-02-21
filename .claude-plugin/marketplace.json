@@ -1,0 +1,15 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claude-tty",
+  "owner": {
+    "name": "Cameron Sjo",
+    "github": "cameronsjo"
+  },
+  "plugins": [
+    {
+      "name": "claude-tty",
+      "source": "./.claude-plugin",
+      "description": "Phone-based server diagnostics terminal via ttyd+tmux+Claude"
+    }
+  ]
+}

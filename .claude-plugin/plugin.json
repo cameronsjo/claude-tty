@@ -1,0 +1,7 @@
+{
+  "name": "claude-tty",
+  "description": "Phone-based server diagnostics terminal via ttyd+tmux+Claude",
+  "author": {
+    "name": "cameronsjo"
+  }
+}
